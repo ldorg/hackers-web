@@ -1,0 +1,84 @@
+apiVersion: automation.cloudbees.io/v1alpha1
+kind: workflow
+name: deploy
+on:
+  workflow_call:
+    inputs:
+      artifactName:
+        type: string
+        required: true
+      artifactVersion:
+        type: string
+        required: true
+      environment:
+        type: string
+        required: true
+      digest:
+        type: string
+        required: false
+  workflow_dispatch:
+    inputs:
+      artifactName:
+        type: string
+        required: true
+      artifactVersion:
+        type: string
+        required: true
+        default: latest
+      environment:
+        type: string
+        required: true
+        default: ld-hackers-prod
+      url:
+        type: string
+        required: false
+      digest:
+        type: string
+        required: false
+env:
+  APP_NAME: ld-hackers-web
+jobs:
+  deploy:
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Checkout
+        uses: cloudbees-io/checkout@v1
+        with:
+          repository: cloudbees-days/ld-hackers-web
+      - uses: cashokannamalai/kubeconfig@v1
+        name: Set kubeconfig
+        with:
+          secname: ${{ secrets.kubeconfig }}
+      - id: install-chart
+        name: Install helm chart
+        uses: cloudbees-io/helm-install@v1
+        with:
+          chart-location: ${{ cloudbees.workspace }}/chart
+          release-name: ${{ env.APP_NAME }}
+          namespace: ${{ vars.namespace }}
+          values: |
+            image:
+              repository: ${{ secrets.DOCKERHUB_USER }}/ld-hackers-web
+              tag: ${{ inputs.artifactVersion }}
+            hostname: ld-hackers.preview.cb-demos.io
+            config:
+              fmKey: ${{ secrets.FM_TOKEN }}
+              apiUrl: https://ld-hackers-api.preview.cb-demos.io/api
+              authUrl: https://ld-hackers-auth.preview.cb-demos.io
+      - name: Register deployed artifact
+        uses: cloudbees-io/register-deployed-artifact@v1
+        with:
+          name: ${{ secrets.DOCKERHUB_USER }}/ld-hackers-web
+          version: ${{ inputs.artifactVersion }}
+          url: "${{ secrets.DOCKERHUB_USER }}/ld-hackers-web:${{ inputs.artifactVersion }}"
+          digest: ${{ inputs.digest }}
+          target-environment: ld-hackers-prod
+      - name: Publish evidence
+        uses: cloudbees-io/publish-evidence-item@v1
+        with:
+          content: |-
+            ## Deployed environment
+            [Dev frontend](https://ld-hackers.preview.cb-demos.io/)
+
+            Running ld-hackers-web:${{ inputs.artifactVersion }}
+          format: MARKDOWN
