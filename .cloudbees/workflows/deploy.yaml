@@ -60,11 +60,11 @@ jobs:
             image:
               repository: ${{ secrets.DOCKERHUB_USER }}/ld-hackers-web
               tag: ${{ inputs.artifactVersion }}
-            hostname: ld-hackers.preview.cb-demos.io
+            hostname: ld-hackers.${{ inputs.environment }}.preview.cb-demos.io
             config:
               fmKey: ${{ secrets.FM_TOKEN }}
-              apiUrl: https://ld-hackers-api.preview.cb-demos.io/api
-              authUrl: https://ld-hackers-auth.preview.cb-demos.io
+              apiUrl: https://ld-hackers-api.${{ inputs.environment }}.preview.cb-demos.io/api
+              authUrl: https://ld-hackers-auth.${{ inputs.environment }}.preview.cb-demos.io
       - name: Register deployed artifact
         uses: cloudbees-io/register-deployed-artifact@v1
         with:
@@ -72,13 +72,13 @@ jobs:
           version: ${{ inputs.artifactVersion }}
           url: "${{ secrets.DOCKERHUB_USER }}/ld-hackers-web:${{ inputs.artifactVersion }}"
           digest: ${{ inputs.digest }}
-          target-environment: ld-hackers-prod
+          target-environment: ${{ inputs.environment }}
       - name: Publish evidence
         uses: cloudbees-io/publish-evidence-item@v1
         with:
           content: |-
             ## Deployed environment
-            [Dev frontend](https://ld-hackers.preview.cb-demos.io/)
+            [${{ inputs.environment }} frontend](https://ld-hackers.${{ inputs.environment }}.preview.cb-demos.io/)
 
             Running ld-hackers-web:${{ inputs.artifactVersion }}
           format: MARKDOWN
