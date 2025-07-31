@@ -10,6 +10,9 @@ on:
       environment:
         type: string
         required: true
+      artifactVersion:
+        type: string
+        required: true
 env:
   APP_NAME: ld-hackers-web
 jobs:
