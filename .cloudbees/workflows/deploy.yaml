@@ -4,37 +4,12 @@ name: deploy
 on:
   workflow_call:
     inputs:
-      artifactName:
-        type: string
-        required: true
-      artifactVersion:
+      artifact-id:
         type: string
         required: true
       environment:
         type: string
         required: true
-      digest:
-        type: string
-        required: false
-  workflow_dispatch:
-    inputs:
-      artifactName:
-        type: string
-        required: true
-      artifactVersion:
-        type: string
-        required: true
-        default: latest
-      environment:
-        type: string
-        required: true
-        default: ld-hackers-prod
-      url:
-        type: string
-        required: false
-      digest:
-        type: string
-        required: false
 env:
   APP_NAME: ld-hackers-web
 jobs:
@@ -66,12 +41,9 @@ jobs:
               apiUrl: https://ld-hackers-api.${{ inputs.environment }}.preview.cb-demos.io/api
               authUrl: https://ld-hackers-auth.${{ inputs.environment }}.preview.cb-demos.io
       - name: Register deployed artifact
-        uses: cloudbees-io/register-deployed-artifact@v1
+        uses: cloudbees-io/register-deployed-artifact@v2
         with:
-          name: ${{ secrets.DOCKERHUB_USER }}/ld-hackers-web
-          version: ${{ inputs.artifactVersion }}
-          url: "${{ secrets.DOCKERHUB_USER }}/ld-hackers-web:${{ inputs.artifactVersion }}"
-          digest: ${{ inputs.digest }}
+          artifact-id: ${{ inputs.artifact-id }}
           target-environment: ${{ inputs.environment }}
       - name: Publish evidence
         uses: cloudbees-io/publish-evidence-item@v1
