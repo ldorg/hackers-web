@@ -59,8 +59,8 @@ jobs:
         id: register
         uses: cloudbees-io/register-build-artifact@v1
         with:
-          artifactName: hackers-web
-          baseVersion: QE0.1
+          name: hackers-web
+          version: QE0.1
           digest: sha256:fe315aaagc92934857cdef===
           url: 020229604682.dkr.ecr.us-east-1.amazonaws.com/throwaway/actions/vulnerable-image:hac-0.1
       - uses: cloudbees-io/asset-chain-utils-preprod/upload-binary@v1
