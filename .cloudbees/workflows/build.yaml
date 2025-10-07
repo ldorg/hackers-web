@@ -54,14 +54,15 @@ jobs:
         with:
           destination: 020229604682.dkr.ecr.us-east-1.amazonaws.com/throwaway/actions/vulnerable-image:hac-0.1
           tar-path: container-image.tar
-          build-args: BUILDKIT_CONTEXT_KEEP_GIT_DIR=1,BUILDKIT_INLINE_CACHE=1
+          # build-args: BUILDKIT_CONTEXT_KEEP_GIT_DIR=1,BUILDKIT_INLINE_CACHE=1
       - name: Register an artifact with the platform
         id: register
         uses: cloudbees-io/register-build-artifact@v2
         with:
-          name: hackers-web
+          artifactName: hackers-web
+          baseVersion: QE0.1
+          digest: sha256:fe315aaagc92934857cdef===
           url: 020229604682.dkr.ecr.us-east-1.amazonaws.com/throwaway/actions/vulnerable-image:hac-0.1
-          version: 1.0-${{ cloudbees.version }}
       - uses: cloudbees-io/asset-chain-utils-preprod/upload-binary@v1
         name: Upload binary from container build
         id: upload-binary
